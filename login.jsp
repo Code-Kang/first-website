@@ -119,7 +119,7 @@
     <!-- page-body-wrapper ends -->
     <!-- content-wrapper ends -->
     <footer class="footer footer-alt text-center" style="font-size: 0.872em;">
-        본 시스템은 (주)편강 임직원에 한하여 사용 하실 수 있습니다.<br>
+        본 시스템은 임직원에 한하여 사용 하실 수 있습니다.<br>
         불법적인 접근 및 사용 시 관련 법규에 의해 처벌 될 수 있습니다.<br>
         <b><script>document.write(new Date().getFullYear())</script>C(주)편강</b>
     </footer>
