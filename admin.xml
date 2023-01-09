@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.sample.mapper.AdminMapper">
+    <select id="adminInfo" parameterType="java.lang.String" resultType="kr.co.sample.model.Admin">
+        SELECT us_id, us_name, us_pass, co_id, de_id, h_phone, extent, f_count,
+               TIMESTAMPDIFF(SECOND, f_time, NOW()) AS f_time, login_cnt, last_login, session_key,
+               cm_allow, login_ip, level, reg_id, reg_date, mod_id, mod_date
+        FROM pk_users
+        WHERE us_id = #{usId}
+    </select>
+
+    <select id="userLogin" parameterType="kr.co.sample.model.User" resultType="kr.co.sample.model.User">
+        SELECT us_id, us_password, login_fail_count
+        FROM ed_user
+        WHERE us_id = #{usId}
+    </select>
+
+    <select id="idCheck" parameterType="kr.co.sample.model.User" resultType="kr.co.sample.model.User">
+        SELECT us_id
+        FROM ed_user
+        WHERE us_id = #{usId}
+    </select>
+
+    <update id="updateTodayLogin" parameterType="kr.co.sample.model.User">
+        UPDATE ed_user
+        SET today_login = NOW()
+          , login_fail_count = 0
+        WHERE us_id = #{usId}
+    </update>
+
+    <update id="updateloginFailCount" parameterType="kr.co.sample.model.User">
+        UPDATE ed_user
+        SET login_fail_count = login_fail_count + 1
+        WHERE us_id = #{usId}
+    </update>
+
+    <insert id="registMember" parameterType="kr.co.sample.model.User">
+        INSERT INTO ed_user(us_id, us_name, us_password, us_email, us_tel, us_hp, status, regist_id, regist_date, modify_id, modify_date)
+        VALUES(#{usId}, #{usName}, #{usPassword}, #{usEmail}, #{usTel}, #{usHp}, #{status}, #{registId}, NOW(), #{modifyId}, NOW())
+    </insert>
+
+    <!--    <select id="userTel" parameterType="kr.co.sample.model.User" resultType="kr.co.sample.model.User">-->
+<!--        SELECT us_tel -->
+<!--        FROM ed_user -->
+<!--        WHERE us_id = #{usId}-->
+<!--          AND us_name = #{usName}-->
+<!--    </select>-->
+
+
+    <update id="updateLoginFail" parameterType="java.lang.String">
+        UPDATE pk_users
+        SET f_count = f_count + 1
+          ,f_time = now()
+        WHERE cm_allow <![CDATA[<>]]> 'D'
+          AND us_id = #{usId}
+    </update>
+
+
+    <update id="updateLogin" parameterType="kr.co.sample.model.Admin">
+        UPDATE pk_users
+        SET f_count = 0
+          ,f_time = null
+          ,login_cnt = login_cnt + 1
+          ,last_login = now()
+          ,session_key = #{sessionKey}
+        WHERE cm_allow <![CDATA[<>]]> 'D'
+          AND us_id = #{usId}
+    </update>
+
+    <update id="updateLoginFailCount" parameterType="java.lang.String">
+        UPDATE pk_users
+        SET f_count = 0
+        WHERE cm_allow <![CDATA[<>]]> 'D'
+          AND us_id = #{usId}
+    </update>
+
+    <insert id="insertAdminLog" parameterType="kr.co.sample.model.Admin">
+        INSERT INTO pk_system_log(us_id, us_ip, referer, access_url, act, reg_date)
+        VALUES(#{usId}, #{usIp}, #{referer}, #{accessUrl}, #{act}, NOW())
+    </insert>
+
+    <select id="adminLogLastInfo" parameterType="java.lang.String" resultType="kr.co.sample.model.Admin">
+        <![CDATA[
+        SELECT seq, us_id, us_ip, referer, access_url, act, reg_date
+        FROM pk_system_log
+        WHERE seq > 0
+           AND us_id = #{usId}
+           AND act = 'LOGIN SUCCESS'
+        ORDER BY SEQ DESC
+        LIMIT 1
+        ]]>
+    </select>
+    
+</mapper>
